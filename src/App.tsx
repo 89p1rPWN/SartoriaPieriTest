@@ -277,7 +277,8 @@ export default function App() {
           scrollTrigger: {
             trigger: '.collection-pin',
             start: 'top top',
-            end: () => `+=${Math.abs(getScrollAmount())}`,
+            // Added 600px of extra scroll distance as 'padding' for the last card to finish its rotation
+            end: () => `+=${Math.abs(getScrollAmount()) + 600}`,
             scrub: 1,
             pin: true,
             invalidateOnRefresh: true,

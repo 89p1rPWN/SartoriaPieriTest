@@ -263,14 +263,17 @@ export default function App() {
         });
       });
 
-      // GSAP-driven horizontal scroll using translateX on inner track
+      // GSAP-driven horizontal scroll + 'Lookbook Reel' 3D effect
       const track = document.querySelector('.collection-track') as HTMLElement;
       if (track) {
         const getScrollAmount = () => -(track.scrollWidth - window.innerWidth + 60);
+        const cards = gsap.utils.toArray('.collection-card');
         
-        gsap.to(track, {
+        // 1. Horizontal movement with ID for syncing
+        const horizontalTween = gsap.to(track, {
           x: getScrollAmount,
           ease: 'none',
+          id: 'collection-scroll',
           scrollTrigger: {
             trigger: '.collection-pin',
             start: 'top top',
@@ -279,6 +282,41 @@ export default function App() {
             pin: true,
             invalidateOnRefresh: true,
           }
+        });
+
+        // 2. Individual card 'Flipping Swatch' effect
+        // Pivot from the top-left to resemble a pinned fabric swatch or design board
+        cards.forEach((card: any) => {
+          gsap.timeline({
+            scrollTrigger: {
+              trigger: card,
+              containerAnimation: horizontalTween,
+              start: 'left center+=200',
+              end: 'right center-=200',
+              scrub: true,
+            }
+          })
+          .fromTo(card, {
+            rotationY: 70,
+            rotationX: 10,
+            scale: 0.7,
+            opacity: 0.3,
+            transformPerspective: 1200,
+            transformOrigin: '50% 0%', // Pivot from top like a hanger
+          }, {
+            rotationY: 0,
+            rotationX: 0,
+            scale: 1,
+            opacity: 1,
+            ease: 'none',
+          })
+          .to(card, {
+            rotationY: -70,
+            rotationX: -10,
+            scale: 0.7,
+            opacity: 0.3,
+            ease: 'none',
+          });
         });
       }
 
@@ -621,18 +659,42 @@ export default function App() {
         </div>
 
         {/* Horizontal scroll — pinned section with translateX */}
-        <div className="collection-pin w-full overflow-hidden">
-          <div className="collection-track flex gap-8 pl-[10vw] py-12 will-change-transform">
+        <div className="collection-pin w-full overflow-hidden min-h-[90vh] flex items-center">
+          <div className="collection-track flex gap-12 pl-[20vw] pr-[20vw] py-24 will-change-transform" style={{ perspective: '2000px' }}>
             {[
-              "/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg",
-              "/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg",
-              "/images/Dolore/SnapInsta.to_558249135_17969464229956293_5690768833321361701_n.jpg",
-              "/images/Vergogna/SnapInsta.to_557354789_17969241758956293_8274444764858319297_n.jpg",
-              "/images/Dolore/SnapInsta.to_558963690_17969464241956293_86024772721168564_n.jpg",
-              "/images/Vergogna/SnapInsta.to_557416702_17969241773956293_8398165058072610666_n.jpg"
-            ].map((src, i) => (
-              <div key={i} className="collection-card w-[80vw] md:w-[40vw] lg:w-[28vw] h-[60vh] shrink-0 shadow-[15px_15px_0px_#111] group overflow-hidden border border-black/10">
-                <img src={src} className="w-full h-full object-cover grayscale-[0.3] contrast-[1.1] transform transition-transform duration-1000 group-hover:scale-105" alt={`Collection outfit ${i}`} />
+              { src: "/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg", fabric: "Raw Silk Blend" },
+              { src: "/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg", fabric: "Heavy Wool Tartan" },
+              { src: "/images/Dolore/SnapInsta.to_558249135_17969464229956293_5690768833321361701_n.jpg", fabric: "Distressed Canvas" },
+              { src: "/images/Vergogna/SnapInsta.to_557354789_17969241758956293_8274444764858319297_n.jpg", fabric: "Brushed Mohair" },
+              { src: "/images/Dolore/SnapInsta.to_558963690_17969464241956293_86024772721168564_n.jpg", fabric: "Technical Nylon" },
+              { src: "/images/Vergogna/SnapInsta.to_557416702_17969241773956293_8398165058072610666_n.jpg", fabric: "Linen Gauze" }
+            ].map((item, i) => (
+              <div key={i} className="collection-card relative w-[75vw] md:w-[35vw] lg:w-[24vw] h-[55vh] shrink-0 group">
+                
+                {/* Hanger Hook Visual */}
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-8 h-12 flex flex-col items-center opacity-40 group-hover:opacity-80 transition-opacity">
+                  <div className="w-1.5 h-6 bg-black rounded-full mb-1"></div>
+                  <div className="w-full h-1 bg-black/20 rounded-full"></div>
+                </div>
+
+                <div className="w-full h-full bg-[#111] shadow-[20px_40px_80px_rgba(0,0,0,0.3)] group-hover:shadow-[20px_40px_100px_rgba(0,0,0,0.5)] transition-shadow duration-700 overflow-hidden border border-black/10 flex flex-col">
+                  {/* Technical Tag Overlay */}
+                  <div className="absolute top-6 right-6 z-20 mix-blend-difference pointer-events-none">
+                    <div className="flex flex-col text-[8px] md:text-[10px] font-mono tracking-tighter text-white/50 border-r border-white/30 pr-2 items-end">
+                      <span>LOOK_0{i+1}</span>
+                      <span>FABRIC: {item.fabric}</span>
+                      <span>REF: SP2026.V1</span>
+                    </div>
+                  </div>
+
+                  <img src={item.src} className="w-full h-full object-cover grayscale-[0.2] contrast-[1.1] transition-all duration-1000 group-hover:scale-110 group-hover:grayscale-0" alt={`Collection look ${i+1}`} />
+                  
+                  {/* Subtle border overlay */}
+                  <div className="absolute inset-0 border-[1.5rem] border-transparent group-hover:border-black/5 transition-all duration-700 pointer-events-none"></div>
+                </div>
+
+                {/* Card Shadow Shadow (separate for 3D depth) */}
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[80%] h-4 bg-black/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
             ))}
           </div>

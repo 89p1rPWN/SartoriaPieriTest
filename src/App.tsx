@@ -37,24 +37,282 @@ export default function App() {
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       
-      // Hero Animations - Minimalist
-      const tl = gsap.timeline();
-      tl.from('.hero-word', {
-        y: 50,
+      // ===========================
+      // HERO ANIMATIONS
+      // ===========================
+      const heroTl = gsap.timeline();
+      
+      // Staggered word reveal with slight rotation
+      heroTl.from('.hero-word', {
+        y: 120,
         opacity: 0,
-        duration: 1,
-        stagger: 0.1,
-        ease: 'power3.out',
-        delay: 0.2
+        rotateX: 40,
+        duration: 1.4,
+        stagger: 0.15,
+        ease: 'power4.out',
+        delay: 0.3
       })
       .from('.hero-scatter', {
         opacity: 0,
-        duration: 1,
-        stagger: 0.05,
-        ease: 'none'
-      }, "-=0.5");
+        y: 20,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'power2.out'
+      }, "-=0.6");
 
-      // Shared Fade-ups
+      // Hero parallax zoom-out on scroll — text scales down, image zooms out
+      gsap.to('.hero-text-wrapper', {
+        scale: 0.85,
+        y: -80,
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+      // Hero background image kenburns on scroll
+      gsap.to('.hero-bg-image', {
+        scale: 1.3,
+        y: 100,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+      // ===========================
+      // MULTI-LAYER MOODBOARD PARALLAX
+      // ===========================
+      // Text layer — slowest
+      gsap.to('.moodboard-text', {
+        yPercent: 8,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true
+        }
+      });
+
+      // SVG layer — medium speed
+      gsap.to('.moodboard-svg', {
+        yPercent: 18,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true
+        }
+      });
+
+      // Notes / technical layer — fastest
+      gsap.to('.moodboard-notes', {
+        yPercent: 28,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true
+        }
+      });
+
+      // ===========================
+      // PHILOSOPHY SECTION
+      // ===========================
+      // Title slides in from the left
+      gsap.from('.philo-title', {
+        x: -120,
+        opacity: 0,
+        duration: 1.5,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.philo-container',
+          start: 'top 80%'
+        }
+      });
+
+      // Decorative vertical line grows
+      gsap.from('.philo-line-decor', {
+        scaleY: 0,
+        transformOrigin: 'top center',
+        duration: 1.2,
+        ease: 'power2.inOut',
+        scrollTrigger: {
+          trigger: '.philo-container',
+          start: 'top 75%'
+        }
+      });
+
+      // Split text reveal for Philosophy paragraphs — staggered from bottom
+      gsap.from('.philo-line', {
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.12,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.philo-container',
+          start: 'top 70%'
+        }
+      });
+
+      // Parallax drift on philosophy label
+      gsap.to('.philo-label', {
+        y: -40,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.philo-container',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+      // ===========================
+      // FOUNDER SECTION
+      // ===========================
+      // Image reveal: clip-path animation from center outward
+      gsap.from('.founder-img-wrapper', {
+        clipPath: 'inset(50% 50% 50% 50%)',
+        duration: 1.8,
+        ease: 'power4.inOut',
+        scrollTrigger: {
+          trigger: '.founder-wrapper',
+          start: 'top 75%'
+        }
+      });
+
+      // Founder image inner parallax
+      gsap.to('.founder-img-inner', {
+        yPercent: 25,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.founder-wrapper',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+      // Founder text stagger from the right
+      gsap.from('.founder-text-block > *', {
+        x: 80,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.12,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.founder-text-block',
+          start: 'top 80%'
+        }
+      });
+
+      // ===========================
+      // PROCESS PANELS — Enhanced
+      // ===========================
+      const panels = gsap.utils.toArray('.process-panel');
+      
+      panels.forEach((panel: any, i: number) => {
+        // Pin each panel
+        ScrollTrigger.create({
+          trigger: panel,
+          start: 'top top',
+          pin: true,
+          pinSpacing: false,
+          end: 'max'
+        });
+
+        // Crossfade between panels
+        if (i < panels.length - 1) {
+          gsap.to(panel, {
+            opacity: 0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panels[i + 1] as any,
+              start: 'top bottom',
+              end: 'top top',
+              scrub: true
+            }
+          });
+        }
+
+        // Image parallax inside each panel
+        const img = panel.querySelector('.process-img');
+        if (img) {
+          gsap.to(img, {
+            yPercent: -15,
+            scale: 1.08,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true
+            }
+          });
+        }
+
+        // Giant number counter float
+        const num = panel.querySelector('.process-num');
+        if (num) {
+          gsap.to(num, {
+            y: -80,
+            opacity: 0.02,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true
+            }
+          });
+        }
+
+        // Text block slide in
+        const textBlock = panel.querySelector('.process-text');
+        if (textBlock) {
+          gsap.from(textBlock, {
+            y: 60,
+            opacity: 0,
+            duration: 1.2,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top 70%'
+            }
+          });
+        }
+      });
+
+      // Fade out last panel before footer
+      const lastPanel = panels[panels.length - 1];
+      if (lastPanel) {
+        gsap.to(lastPanel as any, {
+          opacity: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.footer-section',
+            start: 'top bottom',
+            end: 'top center',
+            scrub: true
+          }
+        });
+      }
+
+      // ===========================
+      // COLLECTION SECTION
+      // ===========================
+      // Title and button fade-up
       gsap.utils.toArray('.fade-up').forEach((elem: any) => {
         gsap.from(elem, {
           y: 60,
@@ -68,88 +326,46 @@ export default function App() {
         });
       });
 
-      // Split text reveal for Philosophy
-      gsap.from('.philo-line', {
-        y: 40,
-        opacity: 0,
-        duration: 1.2,
-        stagger: 0.2,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.philo-container',
-          start: 'top 75%'
-        }
-      });
-
-      // Founder Image Parallax
-      gsap.to('.founder-img-inner', {
-        yPercent: 30,
-        ease: "none",
-        scrollTrigger: {
-          trigger: '.founder-wrapper',
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true
-        }
-      });
-
-      // Background Parallax to give the moodboard some depth
-      gsap.to('.moodboard-layer', {
-        yPercent: 15,
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: true
-        }
-      });
-
-      // The Process - Pinned Glass Panels
-      const panels = gsap.utils.toArray('.process-panel');
-      panels.forEach((panel: any, i: number) => {
-        // Pin the panel
-        ScrollTrigger.create({
-          trigger: panel,
-          start: 'top top',
-          pin: true,
-          pinSpacing: false,
-          end: 'max'
-        });
-
-        // Crossfade to the next panel so text doesn't overlap
-        if (i < panels.length - 1) {
-          gsap.to(panel, {
-            opacity: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: panels[i + 1] as any,
-              start: "top bottom",
-              end: "top top",
-              scrub: true
-            }
-          });
-        }
-      });
-
-      // Fade out the last panel as the footer section comes up
-      const lastPanel = panels[panels.length - 1];
-      if (lastPanel) {
-        gsap.to(lastPanel as any, {
-          opacity: 0,
-          ease: "none",
+      // GSAP-driven horizontal scroll for collection
+      const scrollContainer = document.querySelector('.collection-scroll');
+      if (scrollContainer) {
+        const scrollWidth = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        
+        gsap.to(scrollContainer, {
+          scrollLeft: scrollWidth,
+          ease: 'none',
           scrollTrigger: {
-            trigger: '.footer-section',
-            start: "top bottom",
-            end: "top center",
-            scrub: true
+            trigger: '.collection-wrapper',
+            start: 'top 20%',
+            end: () => `+=${scrollWidth}`,
+            scrub: 1,
+            pin: true,
           }
         });
       }
 
-      // Footer Reveal
+      // Scale-in for each collection card as they come into view
+      gsap.utils.toArray('.collection-card').forEach((card: any, i: number) => {
+        gsap.from(card, {
+          scale: 0.85,
+          opacity: 0,
+          rotateY: 8,
+          duration: 0.8,
+          ease: 'power2.out',
+          delay: i * 0.1,
+          scrollTrigger: {
+            trigger: '.collection-wrapper',
+            start: 'top 75%',
+          }
+        });
+      });
+
+      // ===========================
+      // FOOTER REVEAL
+      // ===========================
       gsap.from('.footer-content', {
         y: -100,
+        scale: 0.92,
         opacity: 0,
         ease: 'none',
         scrollTrigger: {
@@ -157,6 +373,19 @@ export default function App() {
           start: 'top bottom',
           end: 'top 50%',
           scrub: true
+        }
+      });
+
+      // Footer links stagger
+      gsap.from('.footer-link', {
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.footer-section',
+          start: 'top 60%'
         }
       });
 
@@ -170,19 +399,22 @@ export default function App() {
       
       {/* === GLOBAL UNIFIED BACKGROUND MOODBOARD (LIGHT THEME) === */}
       <div className="fixed inset-0 z-[-1] bg-[#F7F7F7] overflow-hidden">
-        <div className="moodboard-layer absolute inset-[-10%] w-[120%] h-[120%] overflow-hidden pointer-events-none">
-            {/* 1. Large Faded Text Annotations & Signatures */}
+        {/* Layer 1: Large text annotations — slowest parallax */}
+        <div className="moodboard-text absolute inset-[-10%] w-[120%] h-[120%] overflow-hidden pointer-events-none">
             <div className="absolute top-[15%] left-[10%] font-serif italic text-6xl md:text-8xl text-neutral-800 -rotate-6">Tomas Zopieri</div>
             <div className="absolute top-[45%] right-[25%] font-serif italic text-7xl md:text-[10rem] text-zinc-800 rotate-[10deg] whitespace-nowrap">Modartec Studio</div>
-            <div className="absolute bottom-[20%] left-[8%] font-mono text-4xl text-neutral-900 -rotate-90 origin-left">SKETCH_04.2026 // DRAFT</div>
             <div className="absolute top-[65%] left-[30%] font-serif text-3xl md:text-6xl text-zinc-800 rotate-[3deg]">"THE FORM FOLLOWS TRAUMA"</div>
-            <div className="absolute top-[10%] right-[15%] font-mono text-2xl text-neutral-800 tracking-[0.5em] mt-10">REF: SP-2481A</div>
             <div className="absolute bottom-[10%] right-[30%] font-sans font-light italic text-5xl text-zinc-900 rotate-[-5deg]">Sartoria Pieri</div>
-            <div className="absolute top-[30%] left-[60%] font-mono text-4xl md:text-6xl text-neutral-900 rotate-90 origin-left tracking-[1em]">CATHARSIS</div>
             <div className="absolute top-[75%] right-[5%] font-serif text-6xl md:text-9xl text-zinc-800 rotate-90 origin-right">VERGOGNA</div>
             <div className="absolute bottom-[35%] left-[15%] font-serif italic text-4xl text-neutral-800 rotate-[45deg]">Volume I.</div>
+        </div>
 
-            {/* 2. Tailoring Technical Notes */}
+        {/* Layer 2: Technical notes — medium parallax */}
+        <div className="moodboard-notes absolute inset-[-10%] w-[120%] h-[120%] overflow-hidden pointer-events-none">
+            <div className="absolute bottom-[20%] left-[8%] font-mono text-4xl text-neutral-900 -rotate-90 origin-left">SKETCH_04.2026 // DRAFT</div>
+            <div className="absolute top-[10%] right-[15%] font-mono text-2xl text-neutral-800 tracking-[0.5em] mt-10">REF: SP-2481A</div>
+            <div className="absolute top-[30%] left-[60%] font-mono text-4xl md:text-6xl text-neutral-900 rotate-90 origin-left tracking-[1em]">CATHARSIS</div>
+
             <div className="absolute top-[25%] left-[45%] font-mono text-[10px] md:text-xs text-neutral-800 max-w-xs rotate-[2deg]">
               [NOTE: EXTEND THE LAPEL BY 2.4CM]
               <br/>[TENSION ALONG THE SPINE SEAM]
@@ -198,8 +430,10 @@ export default function App() {
             <div className="absolute top-[18%] right-[40%] font-mono text-[10px] md:text-xs text-neutral-900 border border-neutral-800 p-2 rotate-[-4deg]">
               FABRIC SOURCING: PENDING
             </div>
+        </div>
 
-            {/* 3. Hand-Drawn SVG Mockups / Tailoring Symbols */}
+        {/* Layer 3: SVG mockups — fastest parallax */}
+        <div className="moodboard-svg absolute inset-[-10%] w-[120%] h-[120%] overflow-hidden pointer-events-none">
             {/* Central abstracted torso / suit shape */}
             <svg className="absolute top-[25%] left-[18%] w-[300px] md:w-[450px] opacity-[0.8] -rotate-[8deg]" viewBox="0 0 200 300" fill="none" stroke="#27272a" strokeWidth="1">
               <path d="M70,50 Q100,20 130,50 Q160,80 140,150 Q120,220 100,280 Q80,220 60,150 Q40,80 70,50 Z" />
@@ -236,7 +470,7 @@ export default function App() {
             </svg>
         </div>
 
-        {/* Global SVG Noise Overlay - Inverted lightly */}
+        {/* Global SVG Noise Overlay */}
         <svg className="pointer-events-none absolute isolate z-10 opacity-[0.4] mix-blend-multiply inset-0 w-full h-full filter invert">
           <filter id="noise">
             <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" />
@@ -244,28 +478,25 @@ export default function App() {
           <rect width="100%" height="100%" filter="url(#noise)" />
         </svg>
 
-        {/* Light radial vignette to gently darken edges */}
+        {/* Light radial vignette */}
         <div className="absolute inset-0 bg-[#000000]/10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#E0E0E0_100%)] pointer-events-none"></div>
       </div>
       {/* =========================================== */}
 
 
-      {/* 1. Hero Section - SOLID BLACK BACKGROUND TO COVER MOODBOARD INITIALLY */}
-      <section className="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden bg-[#030303] text-white z-20">
+      {/* 1. Hero Section */}
+      <section className="hero-section relative h-screen w-full flex flex-col justify-center items-center overflow-hidden bg-[#030303] text-white z-20">
         
-        {/* Dynamic Cool Background Layer specifically for Hero */}
+        {/* Dynamic Background Layer for Hero */}
         <div className="absolute inset-0 z-[-1] overflow-hidden bg-[#000]">
-          {/* High-contrast, gritty monolithic image background */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none grayscale">
+          <div className="hero-bg-image absolute inset-[-20%] w-[140%] h-[140%] flex items-center justify-center opacity-40 pointer-events-none grayscale">
             <img 
               src="/images/sartoria/DSC09793.jpg" 
               alt="Sartoria Elements" 
               className="w-full h-full object-cover mix-blend-luminosity filter contrast-[2.5] brightness-50"
             />
           </div>
-          {/* Deep shadow edge crusher */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#000000_90%)] pointer-events-none"></div>
-          {/* Hero specific SVG Noise Overlay */}
           <svg className="pointer-events-none absolute isolate z-10 opacity-[0.25] mix-blend-soft-light inset-0 w-full h-full">
             <filter id="noise-dark">
               <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" />
@@ -296,7 +527,7 @@ export default function App() {
         </div>
 
         {/* Center Stark Typography */}
-        <div className="z-10 flex flex-col justify-center items-center relative w-full px-4 mix-blend-difference">
+        <div className="hero-text-wrapper z-10 flex flex-col justify-center items-center relative w-full px-4 mix-blend-difference" style={{ perspective: '800px' }}>
           <h1 className="flex flex-col text-center">
             <span className="hero-word text-[15vw] md:text-[12rem] lg:text-[16rem] font-sans font-black tracking-tighter text-white uppercase leading-[0.8] drop-shadow-2xl">
               SARTORIA
@@ -308,7 +539,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 2. Philosophy Section - RAW EDITORIAL THEME */}
+      {/* 2. Philosophy Section */}
       <section className="philo-container relative py-40 flex flex-col items-center text-center z-10 bg-transparent">
         <div className="max-w-5xl w-full mx-auto px-6 py-24">
           <div className="relative space-y-16 p-8 md:p-16 z-10">
@@ -316,12 +547,12 @@ export default function App() {
               className="absolute inset-[-40%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
               style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
             ></div>
-            <span className="fade-up text-xs font-sans tracking-[0.4em] uppercase text-gray-500">The Philosophy</span>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif font-light text-black leading-tight">
+            <span className="philo-label fade-up text-xs font-sans tracking-[0.4em] uppercase text-gray-500">The Philosophy</span>
+            <h2 className="philo-title text-4xl md:text-6xl lg:text-7xl font-serif font-light text-black leading-tight">
               <div className="overflow-hidden"><span className="philo-line block">Embedding Emotions</span></div>
               <div className="overflow-hidden"><span className="philo-line block">Into Outfits.</span></div>
             </h2>
-            <div className="fade-up w-px h-24 bg-black/20 mx-auto"></div>
+            <div className="philo-line-decor w-px h-24 bg-black/20 mx-auto"></div>
             <div className="text-xl md:text-3xl text-[#333] font-light leading-relaxed max-w-4xl mx-auto">
               <div className="overflow-hidden"><span className="philo-line block">Sartoria Pieri is not simply about clothing;</span></div>
               <div className="overflow-hidden"><span className="philo-line block">it is about encapsulating the human experience.</span></div>
@@ -338,7 +569,7 @@ export default function App() {
         <div className="max-w-7xl w-full mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center py-8 lg:py-16">
             
-            <div className="relative h-[60vh] lg:h-[80vh] w-full overflow-hidden group order-2 lg:order-1">
+            <div className="founder-img-wrapper relative h-[60vh] lg:h-[80vh] w-full overflow-hidden group order-2 lg:order-1" style={{ clipPath: 'inset(0% 0% 0% 0%)' }}>
               <img 
                 src="/images/Depravazione/Depravazione.jpg" 
                 alt="Tomas Zopieri Art"
@@ -347,26 +578,26 @@ export default function App() {
               <div className="absolute inset-0 bg-white/10 transition duration-700 group-hover:bg-transparent"></div>
             </div>
             
-            <div className="relative space-y-10 order-1 lg:order-2 p-8 lg:p-12 z-10 text-black">
+            <div className="founder-text-block relative space-y-10 order-1 lg:order-2 p-8 lg:p-12 z-10 text-black">
               <div 
                 className="absolute inset-[-30%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
                 style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
               ></div>
-              <span className="fade-up text-xs font-sans tracking-[0.4em] uppercase text-gray-500">The Visionary</span>
-              <h2 className="fade-up text-5xl md:text-7xl font-serif font-light text-black tracking-tight">
+              <span className="text-xs font-sans tracking-[0.4em] uppercase text-gray-500">The Visionary</span>
+              <h2 className="text-5xl md:text-7xl font-serif font-light text-black tracking-tight">
                 Tomas Zopieri
               </h2>
-              <div className="fade-up w-16 h-[2px] bg-black"></div>
-              <p className="fade-up text-2xl text-gray-800 leading-relaxed font-light">
+              <div className="w-16 h-[2px] bg-black"></div>
+              <p className="text-2xl text-gray-800 leading-relaxed font-light">
                 Educated at the prestigious <span className="font-semibold italic">Modartec Studio</span>, Tomas has cultivated profound expertise 
                 across every realm of fashion design.
               </p>
-              <p className="fade-up text-xl text-gray-600 leading-relaxed font-light">
+              <p className="text-xl text-gray-600 leading-relaxed font-light">
                 Through meticulous attention to detail and an avant-garde approach to tailoring, Tomas ensures 
                 that each piece transcends conventional fashion. His vision bridges the gap between high-end haute couture 
                 and psychological art, forging an intimate dialogue between the creator, the garment, and the wearer.
               </p>
-              <div className="fade-up pt-8">
+              <div className="pt-8">
                  <button className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-black hover:text-gray-500 transition-colors w-fit border-b border-black/30 pb-3 group font-bold">
                    Read Full Story <ChevronRight size={16} className="transform transition-transform group-hover:translate-x-2" />
                  </button>
@@ -382,10 +613,9 @@ export default function App() {
         
         {/* Layer 1: Consultation */}
         <div className="process-panel h-screen w-full relative flex items-center justify-center bg-transparent py-12">
-          {/* Stripped card entirely: content flows directly over the background */}
           <div className="max-w-6xl w-full mx-6 flex flex-col md:flex-row gap-12 lg:gap-24 items-center relative py-10 lg:py-16">
-            <h2 className="text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -top-16 lg:-top-32 -left-10 lg:-left-16 pointer-events-none select-none">01</h2>
-            <div className="relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
+            <h2 className="process-num text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -top-16 lg:-top-32 -left-10 lg:-left-16 pointer-events-none select-none">01</h2>
+            <div className="process-text relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
               <div 
                 className="absolute inset-[-30%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
                 style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
@@ -397,7 +627,7 @@ export default function App() {
               </p>
             </div>
             <div className="w-full md:w-1/2 h-[45vh] lg:h-[60vh] overflow-hidden z-10 shadow-[20px_20px_0px_#111]">
-               <img src="/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg" className="w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 1" />
+               <img src="/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg" className="process-img w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 1" />
             </div>
           </div>
         </div>
@@ -405,8 +635,8 @@ export default function App() {
         {/* Layer 2: Material Sourcing */}
         <div className="process-panel h-screen w-full relative flex items-center justify-center bg-transparent py-12">
           <div className="max-w-6xl w-full mx-6 flex flex-col md:flex-row-reverse gap-12 lg:gap-24 items-center relative py-10 lg:py-16">
-            <h2 className="text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -bottom-16 lg:-bottom-32 -right-10 lg:-right-16 pointer-events-none select-none">02</h2>
-            <div className="relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
+            <h2 className="process-num text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -bottom-16 lg:-bottom-32 -right-10 lg:-right-16 pointer-events-none select-none">02</h2>
+            <div className="process-text relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
               <div 
                 className="absolute inset-[-30%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
                 style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
@@ -418,7 +648,7 @@ export default function App() {
               </p>
             </div>
             <div className="w-full md:w-1/2 h-[45vh] lg:h-[60vh] overflow-hidden z-10 shadow-[-20px_20px_0px_#111]">
-               <img src="/images/Trauma/SnapInsta.to_552897189_17968571219956293_5767781704309943743_n.jpg" className="w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 2" />
+               <img src="/images/Trauma/SnapInsta.to_552897189_17968571219956293_5767781704309943743_n.jpg" className="process-img w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 2" />
             </div>
           </div>
         </div>
@@ -426,8 +656,8 @@ export default function App() {
         {/* Layer 3: Crafting */}
         <div className="process-panel h-screen w-full relative flex items-center justify-center bg-transparent py-12">
           <div className="max-w-6xl w-full mx-6 flex flex-col md:flex-row gap-12 lg:gap-24 items-center relative py-10 lg:py-16">
-            <h2 className="text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -top-16 lg:-top-32 -left-10 lg:-left-16 pointer-events-none select-none">03</h2>
-            <div className="relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
+            <h2 className="process-num text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -top-16 lg:-top-32 -left-10 lg:-left-16 pointer-events-none select-none">03</h2>
+            <div className="process-text relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
               <div 
                 className="absolute inset-[-30%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
                 style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
@@ -444,7 +674,7 @@ export default function App() {
               </div>
             </div>
             <div className="w-full md:w-1/2 h-[45vh] lg:h-[60vh] overflow-hidden z-10 shadow-[20px_20px_0px_#111]">
-               <img src="/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg" className="w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 3" />
+               <img src="/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg" className="process-img w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 3" />
             </div>
           </div>
         </div>
@@ -452,7 +682,7 @@ export default function App() {
       </section>
 
       {/* 4.5 The Collection Section */}
-      <section className="relative w-full z-10 bg-transparent py-32 overflow-hidden flex flex-col items-center">
+      <section className="collection-wrapper relative w-full z-10 bg-transparent py-32 overflow-hidden flex flex-col items-center">
         <style>{`
           .hide-scroll::-webkit-scrollbar {
             display: none;
@@ -474,9 +704,9 @@ export default function App() {
           </button>
         </div>
 
-        {/* Horizontal Carousel */}
+        {/* Horizontal Carousel — GSAP scroll-linked */}
         <div className="w-full relative mt-12 fade-up">
-          <div className="flex overflow-x-auto gap-8 px-6 pb-12 snap-x snap-mandatory hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="collection-scroll flex overflow-x-auto gap-8 px-6 pb-12 snap-x snap-mandatory hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {[
               "/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg",
               "/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg",
@@ -485,11 +715,10 @@ export default function App() {
               "/images/Dolore/SnapInsta.to_558963690_17969464241956293_86024772721168564_n.jpg",
               "/images/Vergogna/SnapInsta.to_557416702_17969241773956293_8398165058072610666_n.jpg"
             ].map((src, i) => (
-              <div key={i} className="min-w-[80vw] md:min-w-[40vw] lg:min-w-[28vw] h-[60vh] shrink-0 snap-center shadow-[15px_15px_0px_#111] group overflow-hidden border border-black/10">
+              <div key={i} className="collection-card min-w-[80vw] md:min-w-[40vw] lg:min-w-[28vw] h-[60vh] shrink-0 snap-center shadow-[15px_15px_0px_#111] group overflow-hidden border border-black/10">
                 <img src={src} className="w-full h-full object-cover grayscale-[0.3] contrast-[1.1] transform transition-transform duration-1000 group-hover:scale-105" alt={`Collection outfit ${i}`} />
               </div>
             ))}
-            {/* Added a spacer to allow last item to be scrolled to naturally */}
             <div className="min-w-[10vw] shrink-0"></div>
           </div>
         </div>
@@ -507,11 +736,11 @@ export default function App() {
           </button>
         </div>
         <footer className="absolute bottom-12 w-full flex flex-col md:flex-row justify-between items-center px-12 text-[10px] text-gray-500 font-sans tracking-widest uppercase gap-6 md:gap-0">
-          <span>© 2026 Sartoria Pieri</span>
+          <span className="footer-link">© 2026 Sartoria Pieri</span>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-black transition-colors font-bold">Instagram</a>
-            <a href="#" className="hover:text-black transition-colors font-bold">Journal</a>
-            <a href="#" className="hover:text-black transition-colors font-bold">Atelier</a>
+            <a href="#" className="footer-link hover:text-black transition-colors font-bold">Instagram</a>
+            <a href="#" className="footer-link hover:text-black transition-colors font-bold">Journal</a>
+            <a href="#" className="footer-link hover:text-black transition-colors font-bold">Atelier</a>
           </div>
         </footer>
       </section>

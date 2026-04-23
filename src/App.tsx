@@ -60,21 +60,49 @@ export default function App() {
         ease: 'power2.out'
       }, "-=0.6");
 
-      // Hero parallax zoom-out on scroll — text scales down, image zooms out
-      gsap.to('.hero-text-wrapper', {
-        scale: 0.85,
-        y: -80,
-        opacity: 0,
-        ease: 'none',
+      // Hero crossfade timeline: title fades out → philosophy fades in
+      const heroScrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: '.hero-section',
           start: 'top top',
           end: 'bottom top',
-          scrub: true
+          scrub: true,
         }
       });
 
-      // Hero background image kenburns on scroll
+      // First half: title fades & scales out
+      heroScrollTl.to('.hero-text-wrapper', {
+        scale: 0.8,
+        opacity: 0,
+        ease: 'none',
+      }, 0);
+
+      // Second half: philosophy fades in
+      heroScrollTl.fromTo('.philo-container', {
+        opacity: 0,
+        y: 60,
+      }, {
+        opacity: 1,
+        y: 0,
+        ease: 'none',
+      }, 0.35);
+
+      // Stagger the philosophy lines in with scale
+      heroScrollTl.from('.philo-line', {
+        y: 30,
+        opacity: 0,
+        stagger: 0.03,
+        ease: 'power2.out',
+      }, 0.45);
+
+      // Grow the decorative line
+      heroScrollTl.from('.philo-line-decor', {
+        scaleY: 0,
+        transformOrigin: 'top center',
+        ease: 'power2.inOut',
+      }, 0.4);
+
+      // Hero background kenburns across full scroll
       gsap.to('.hero-bg-image', {
         scale: 1.3,
         y: 100,
@@ -82,97 +110,6 @@ export default function App() {
         scrollTrigger: {
           trigger: '.hero-section',
           start: 'top top',
-          end: 'bottom top',
-          scrub: true
-        }
-      });
-
-      // ===========================
-      // MULTI-LAYER MOODBOARD PARALLAX
-      // ===========================
-      // Text layer — slowest
-      gsap.to('.moodboard-text', {
-        yPercent: 8,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: true
-        }
-      });
-
-      // SVG layer — medium speed
-      gsap.to('.moodboard-svg', {
-        yPercent: 18,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: true
-        }
-      });
-
-      // Notes / technical layer — fastest
-      gsap.to('.moodboard-notes', {
-        yPercent: 28,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: true
-        }
-      });
-
-      // ===========================
-      // PHILOSOPHY SECTION
-      // ===========================
-      // Title slides in from the left
-      gsap.from('.philo-title', {
-        x: -120,
-        opacity: 0,
-        duration: 1.5,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.philo-container',
-          start: 'top 80%'
-        }
-      });
-
-      // Decorative vertical line grows
-      gsap.from('.philo-line-decor', {
-        scaleY: 0,
-        transformOrigin: 'top center',
-        duration: 1.2,
-        ease: 'power2.inOut',
-        scrollTrigger: {
-          trigger: '.philo-container',
-          start: 'top 75%'
-        }
-      });
-
-      // Split text reveal for Philosophy paragraphs — staggered from bottom
-      gsap.from('.philo-line', {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.12,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.philo-container',
-          start: 'top 70%'
-        }
-      });
-
-      // Parallax drift on philosophy label
-      gsap.to('.philo-label', {
-        y: -40,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.philo-container',
-          start: 'top bottom',
           end: 'bottom top',
           scrub: true
         }
@@ -469,81 +406,79 @@ export default function App() {
       {/* =========================================== */}
 
 
-      {/* 1. Hero Section */}
-      <section className="hero-section relative h-screen w-full flex flex-col justify-center items-center overflow-hidden bg-[#030303] text-white z-20">
+      {/* 1. Hero + Philosophy Section — Two viewports tall */}
+      <section className="hero-section relative h-[200vh] w-full bg-[#030303] text-white z-20">
         
-        {/* Dynamic Background Layer for Hero */}
-        <div className="absolute inset-0 z-[-1] overflow-hidden bg-[#000]">
-          <div className="hero-bg-image absolute inset-[-20%] w-[140%] h-[140%] flex items-center justify-center opacity-40 pointer-events-none grayscale">
-            <img 
-              src="/images/sartoria/DSC09793.jpg" 
-              alt="Sartoria Elements" 
-              className="w-full h-full object-cover mix-blend-luminosity filter contrast-[2.5] brightness-50"
-            />
+        {/* Dynamic Background Layer — sticky for the full 200vh */}
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <div className="absolute inset-0 z-[-1] overflow-hidden bg-[#000]">
+            <div className="hero-bg-image absolute inset-[-20%] w-[140%] h-[140%] flex items-center justify-center opacity-40 pointer-events-none grayscale">
+              <img 
+                src="/images/sartoria/DSC09793.jpg" 
+                alt="Sartoria Elements" 
+                className="w-full h-full object-cover mix-blend-luminosity filter contrast-[2.5] brightness-50"
+              />
+            </div>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#000000_90%)] pointer-events-none"></div>
+            <svg className="pointer-events-none absolute isolate z-10 opacity-[0.25] mix-blend-soft-light inset-0 w-full h-full">
+              <filter id="noise-dark">
+                <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" />
+              </filter>
+              <rect width="100%" height="100%" filter="url(#noise-dark)" />
+            </svg>
           </div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#000000_90%)] pointer-events-none"></div>
-          <svg className="pointer-events-none absolute isolate z-10 opacity-[0.25] mix-blend-soft-light inset-0 w-full h-full">
-            <filter id="noise-dark">
-              <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" />
-            </filter>
-            <rect width="100%" height="100%" filter="url(#noise-dark)" />
-          </svg>
-        </div>
 
-        {/* Scattered Random Text Annotations */}
-        <div className="absolute top-8 left-8 text-[10px] md:text-xs text-white/50 font-mono tracking-widest uppercase flex flex-col gap-1 z-10 mix-blend-difference">
-          <span className="hero-scatter">Sartoria Pieri</span>
-          <span className="hero-scatter">Creative Dir. T. Zopieri</span>
-        </div>
+          {/* Scattered Random Text Annotations */}
+          <div className="absolute top-8 left-8 text-[10px] md:text-xs text-white/50 font-mono tracking-widest uppercase flex flex-col gap-1 z-10 mix-blend-difference">
+            <span className="hero-scatter">Sartoria Pieri</span>
+            <span className="hero-scatter">Creative Dir. T. Zopieri</span>
+          </div>
 
-        <div className="absolute top-8 right-8 text-[10px] md:text-xs text-white/50 font-mono tracking-widest text-right uppercase flex flex-col gap-1 z-10 mix-blend-difference">
-          <span className="hero-scatter">001.2026</span>
-          <span className="hero-scatter">Firenze, Italy</span>
-        </div>
+          <div className="absolute top-8 right-8 text-[10px] md:text-xs text-white/50 font-mono tracking-widest text-right uppercase flex flex-col gap-1 z-10 mix-blend-difference">
+            <span className="hero-scatter">001.2026</span>
+            <span className="hero-scatter">Firenze, Italy</span>
+          </div>
 
-        <div className="absolute bottom-12 left-8 text-[10px] md:text-xs text-white/50 font-mono tracking-widest uppercase flex flex-col gap-1 max-w-[200px] md:max-w-xs z-10 mix-blend-difference">
-          <span className="hero-scatter">"We do not just dress the body,</span>
-          <span className="hero-scatter">we frame the soul."</span>
-        </div>
+          <div className="absolute bottom-12 left-8 text-[10px] md:text-xs text-white/50 font-mono tracking-widest uppercase flex flex-col gap-1 max-w-[200px] md:max-w-xs z-10 mix-blend-difference">
+            <span className="hero-scatter">"We do not just dress the body,</span>
+            <span className="hero-scatter">we frame the soul."</span>
+          </div>
 
-        <div className="absolute bottom-12 right-8 text-[10px] md:text-xs text-white/30 font-mono tracking-widest text-right flex flex-col gap-1 z-10 mix-blend-difference">
-          <span className="hero-scatter">74.921.84 // SYSTEM READY</span>
-          <span className="hero-scatter">[ SCROLL TO INITIALIZE ]</span>
-        </div>
+          <div className="absolute bottom-12 right-8 text-[10px] md:text-xs text-white/30 font-mono tracking-widest text-right flex flex-col gap-1 z-10 mix-blend-difference">
+            <span className="hero-scatter">74.921.84 // SYSTEM READY</span>
+            <span className="hero-scatter">[ SCROLL TO INITIALIZE ]</span>
+          </div>
 
-        {/* Center Stark Typography */}
-        <div className="hero-text-wrapper z-10 flex flex-col justify-center items-center relative w-full px-4 mix-blend-difference" style={{ perspective: '800px' }}>
-          <h1 className="flex flex-col text-center">
-            <span className="hero-word text-[15vw] md:text-[12rem] lg:text-[16rem] font-sans font-black tracking-tighter text-white uppercase leading-[0.8] drop-shadow-2xl">
-              SARTORIA
-            </span>
-            <span className="hero-word text-[15vw] md:text-[12rem] lg:text-[16rem] font-sans font-black tracking-tighter text-[#eaeaea] uppercase leading-[0.8] drop-shadow-2xl">
-              PIERI
-            </span>
-          </h1>
-        </div>
-      </section>
+          {/* Center Title — fades out as philosophy appears */}
+          <div className="hero-text-wrapper absolute inset-0 z-10 flex flex-col justify-center items-center w-full px-4 mix-blend-difference" style={{ perspective: '800px' }}>
+            <h1 className="flex flex-col text-center">
+              <span className="hero-word text-[15vw] md:text-[12rem] lg:text-[16rem] font-sans font-black tracking-tighter text-white uppercase leading-[0.8] drop-shadow-2xl">
+                SARTORIA
+              </span>
+              <span className="hero-word text-[15vw] md:text-[12rem] lg:text-[16rem] font-sans font-black tracking-tighter text-[#eaeaea] uppercase leading-[0.8] drop-shadow-2xl">
+                PIERI
+              </span>
+            </h1>
+          </div>
 
-      {/* 2. Philosophy Section */}
-      <section className="philo-container relative py-40 flex flex-col items-center text-center z-10 bg-transparent">
-        <div className="max-w-5xl w-full mx-auto px-6 py-24">
-          <div className="relative space-y-16 p-8 md:p-16 z-10">
-            <div 
-              className="absolute inset-[-40%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
-              style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
-            ></div>
-            <span className="philo-label fade-up text-xs font-sans tracking-[0.4em] uppercase text-gray-500">The Philosophy</span>
-            <h2 className="philo-title text-4xl md:text-6xl lg:text-7xl font-serif font-light text-black leading-tight">
-              <div className="overflow-hidden"><span className="philo-line block">Embedding Emotions</span></div>
-              <div className="overflow-hidden"><span className="philo-line block">Into Outfits.</span></div>
-            </h2>
-            <div className="philo-line-decor w-px h-24 bg-black/20 mx-auto"></div>
-            <div className="text-xl md:text-3xl text-[#333] font-light leading-relaxed max-w-4xl mx-auto">
-              <div className="overflow-hidden"><span className="philo-line block">Sartoria Pieri is not simply about clothing;</span></div>
-              <div className="overflow-hidden"><span className="philo-line block">it is about encapsulating the human experience.</span></div>
-              <div className="overflow-hidden"><span className="philo-line block">Every stitch, silhouette, and drape is deliberately</span></div>
-              <div className="overflow-hidden"><span className="philo-line block">crafted to translate unseen internal feelings</span></div>
-              <div className="overflow-hidden"><span className="philo-line block">into tangible, wearable reality.</span></div>
+          {/* Philosophy — appears as you scroll into the second viewport */}
+          <div className="philo-container absolute inset-0 z-20 flex flex-col justify-center items-center text-center opacity-0 px-6">
+            <div className="max-w-5xl w-full mx-auto">
+              <div className="relative space-y-12 p-8 md:p-16 z-10">
+                <span className="philo-label text-xs font-sans tracking-[0.4em] uppercase text-white/50">The Philosophy</span>
+                <h2 className="philo-title text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-tight">
+                  <div className="overflow-hidden"><span className="philo-line block">Embedding Emotions</span></div>
+                  <div className="overflow-hidden"><span className="philo-line block">Into Outfits.</span></div>
+                </h2>
+                <div className="philo-line-decor w-px h-24 bg-white/20 mx-auto"></div>
+                <div className="text-xl md:text-2xl text-white/70 font-light leading-relaxed max-w-4xl mx-auto">
+                  <div className="overflow-hidden"><span className="philo-line block">Sartoria Pieri is not simply about clothing;</span></div>
+                  <div className="overflow-hidden"><span className="philo-line block">it is about encapsulating the human experience.</span></div>
+                  <div className="overflow-hidden"><span className="philo-line block">Every stitch, silhouette, and drape is deliberately</span></div>
+                  <div className="overflow-hidden"><span className="philo-line block">crafted to translate unseen internal feelings</span></div>
+                  <div className="overflow-hidden"><span className="philo-line block">into tangible, wearable reality.</span></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

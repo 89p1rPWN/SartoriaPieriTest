@@ -232,15 +232,15 @@ export default function App() {
           end: 'max'
         });
 
-        // Crossfade between panels
+        // Crossfade — tight range so previous panel fades out quickly
         if (i < panels.length - 1) {
           gsap.to(panel, {
             opacity: 0,
-            ease: 'none',
+            ease: 'power1.in',
             scrollTrigger: {
               trigger: panels[i + 1] as any,
-              start: 'top bottom',
-              end: 'top top',
+              start: 'top 80%',
+              end: 'top 30%',
               scrub: true
             }
           });
@@ -301,9 +301,9 @@ export default function App() {
           opacity: 0,
           ease: 'none',
           scrollTrigger: {
-            trigger: '.footer-section',
+            trigger: '.collection-wrapper',
             start: 'top bottom',
-            end: 'top center',
+            end: 'top 50%',
             scrub: true
           }
         });
@@ -326,39 +326,24 @@ export default function App() {
         });
       });
 
-      // GSAP-driven horizontal scroll for collection
-      const scrollContainer = document.querySelector('.collection-scroll');
-      if (scrollContainer) {
-        const scrollWidth = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+      // GSAP-driven horizontal scroll using translateX on inner track
+      const track = document.querySelector('.collection-track') as HTMLElement;
+      if (track) {
+        const getScrollAmount = () => -(track.scrollWidth - window.innerWidth + 60);
         
-        gsap.to(scrollContainer, {
-          scrollLeft: scrollWidth,
+        gsap.to(track, {
+          x: getScrollAmount,
           ease: 'none',
           scrollTrigger: {
-            trigger: '.collection-wrapper',
-            start: 'top 20%',
-            end: () => `+=${scrollWidth}`,
+            trigger: '.collection-pin',
+            start: 'top top',
+            end: () => `+=${Math.abs(getScrollAmount())}`,
             scrub: 1,
             pin: true,
+            invalidateOnRefresh: true,
           }
         });
       }
-
-      // Scale-in for each collection card as they come into view
-      gsap.utils.toArray('.collection-card').forEach((card: any, i: number) => {
-        gsap.from(card, {
-          scale: 0.85,
-          opacity: 0,
-          rotateY: 8,
-          duration: 0.8,
-          ease: 'power2.out',
-          delay: i * 0.1,
-          scrollTrigger: {
-            trigger: '.collection-wrapper',
-            start: 'top 75%',
-          }
-        });
-      });
 
       // ===========================
       // FOOTER REVEAL
@@ -682,14 +667,10 @@ export default function App() {
       </section>
 
       {/* 4.5 The Collection Section */}
-      <section className="collection-wrapper relative w-full z-10 bg-transparent py-32 overflow-hidden flex flex-col items-center">
-        <style>{`
-          .hide-scroll::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
+      <section className="collection-wrapper relative w-full z-10 bg-transparent overflow-hidden flex flex-col items-center">
         
-        <div className="relative max-w-4xl w-full mx-6 mb-16 text-center p-12 md:p-16 z-10">
+        {/* Title area — not pinned */}
+        <div className="relative max-w-4xl w-full mx-6 mb-16 text-center p-12 md:p-16 z-10 py-32">
           <div 
             className="absolute inset-[-40%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
             style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
@@ -704,9 +685,9 @@ export default function App() {
           </button>
         </div>
 
-        {/* Horizontal Carousel — GSAP scroll-linked */}
-        <div className="w-full relative mt-12 fade-up">
-          <div className="collection-scroll flex overflow-x-auto gap-8 px-6 pb-12 snap-x snap-mandatory hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {/* Horizontal scroll — pinned section with translateX */}
+        <div className="collection-pin w-full overflow-hidden">
+          <div className="collection-track flex gap-8 pl-[10vw] py-12 will-change-transform">
             {[
               "/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg",
               "/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg",
@@ -715,11 +696,10 @@ export default function App() {
               "/images/Dolore/SnapInsta.to_558963690_17969464241956293_86024772721168564_n.jpg",
               "/images/Vergogna/SnapInsta.to_557416702_17969241773956293_8398165058072610666_n.jpg"
             ].map((src, i) => (
-              <div key={i} className="collection-card min-w-[80vw] md:min-w-[40vw] lg:min-w-[28vw] h-[60vh] shrink-0 snap-center shadow-[15px_15px_0px_#111] group overflow-hidden border border-black/10">
+              <div key={i} className="collection-card w-[80vw] md:w-[40vw] lg:w-[28vw] h-[60vh] shrink-0 shadow-[15px_15px_0px_#111] group overflow-hidden border border-black/10">
                 <img src={src} className="w-full h-full object-cover grayscale-[0.3] contrast-[1.1] transform transition-transform duration-1000 group-hover:scale-105" alt={`Collection outfit ${i}`} />
               </div>
             ))}
-            <div className="min-w-[10vw] shrink-0"></div>
           </div>
         </div>
       </section>

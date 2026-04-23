@@ -263,7 +263,64 @@ export default function App() {
         });
       });
 
-      // GSAP-driven horizontal scroll + 'Lookbook Reel' 3D effect
+      // ---------------------------
+      // ATELIER PROCESS SECTION (Horizontal Reel)
+      // ---------------------------
+      const processTrack = document.querySelector('.process-track') as HTMLElement;
+      if (processTrack) {
+        const getProcessScrollAmount = () => -(processTrack.scrollWidth - window.innerWidth + 60);
+        const processCards = gsap.utils.toArray('.process-card');
+        
+        const processHorizontalTween = gsap.to(processTrack, {
+          x: getProcessScrollAmount,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.process-pin',
+            start: 'top top',
+            end: () => `+=${Math.abs(getProcessScrollAmount())}`,
+            scrub: 1,
+            pin: true,
+            invalidateOnRefresh: true,
+          }
+        });
+
+        processCards.forEach((card: any) => {
+          gsap.timeline({
+            scrollTrigger: {
+              trigger: card,
+              containerAnimation: processHorizontalTween,
+              start: 'left center+=200',
+              end: 'right center-=200',
+              scrub: true,
+            }
+          })
+          .fromTo(card, {
+            rotationY: 70,
+            rotationX: 10,
+            scale: 0.7,
+            opacity: 0.3,
+            transformPerspective: 1200,
+            transformOrigin: '50% 0%',
+          }, {
+            rotationY: 0,
+            rotationX: 0,
+            scale: 1,
+            opacity: 1,
+            ease: 'none',
+          })
+          .to(card, {
+            rotationY: -70,
+            rotationX: -10,
+            scale: 0.7,
+            opacity: 0.3,
+            ease: 'none',
+          });
+        });
+      }
+
+      // ---------------------------
+      // COLLECTION SECTION (Horizontal Reel)
+      // ---------------------------
       const track = document.querySelector('.collection-track') as HTMLElement;
       if (track) {
         const getScrollAmount = () => -(track.scrollWidth - window.innerWidth + 60);
@@ -566,77 +623,99 @@ export default function App() {
         </div>
       </section>
 
-      {/* 4. The Atelier Process */}
-      <section className="relative w-full z-10 bg-transparent mb-40">
+      {/* 4. The Atelier Process — Horizontal Lookbook Reel */}
+      <section className="process-wrapper relative w-full z-10 bg-transparent overflow-hidden flex flex-col items-center">
         
-        {/* Layer 1: Consultation */}
-        <div className="process-panel h-screen w-full relative flex items-center justify-center bg-transparent py-12">
-          <div className="max-w-6xl w-full mx-6 flex flex-col md:flex-row gap-12 lg:gap-24 items-center relative py-10 lg:py-16">
-            <h2 className="process-num text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -top-16 lg:-top-32 -left-10 lg:-left-16 pointer-events-none select-none">01</h2>
-            <div className="process-text relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
-              <div 
-                className="absolute inset-[-30%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
-                style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
-              ></div>
-              <span className="text-xs font-sans tracking-[0.4em] uppercase text-gray-500 block mb-6">Phase 01</span>
-              <h3 className="text-5xl md:text-7xl font-serif font-light text-black mb-8">The Catharsis</h3>
-              <p className="text-xl text-gray-800 font-light leading-relaxed">
-                Before the needle threads, we sit. Understanding the emotional landscape of the client is paramount. We draw from vulnerabilities, experiences, and unsaid stories to form the foundational blueprint.
-              </p>
-            </div>
-            <div className="w-full md:w-1/2 h-[45vh] lg:h-[60vh] overflow-hidden z-10 shadow-[20px_20px_0px_#111]">
-               <img src="/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg" className="process-img w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 1" />
-            </div>
-          </div>
+        {/* Title area */}
+        <div className="relative max-w-4xl w-full mx-6 mb-16 text-center p-12 md:p-16 z-10 py-32">
+          <div 
+            className="absolute inset-[-40%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
+            style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
+          ></div>
+          <span className="fade-up text-xs font-sans tracking-[0.4em] uppercase text-gray-500 block mb-6">Methodology</span>
+          <h2 className="fade-up text-5xl md:text-7xl lg:text-8xl font-serif font-light text-black mb-8">The Atelier</h2>
+          <p className="fade-up text-xl text-gray-800 font-light leading-relaxed mb-12 max-w-2xl mx-auto">
+            From cognitive mapping to the final stitch. A four-phase journey into wearable consciousness.
+          </p>
         </div>
 
-        {/* Layer 2: Material Sourcing */}
-        <div className="process-panel h-screen w-full relative flex items-center justify-center bg-transparent py-12">
-          <div className="max-w-6xl w-full mx-6 flex flex-col md:flex-row-reverse gap-12 lg:gap-24 items-center relative py-10 lg:py-16">
-            <h2 className="process-num text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -bottom-16 lg:-bottom-32 -right-10 lg:-right-16 pointer-events-none select-none">02</h2>
-            <div className="process-text relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
-              <div 
-                className="absolute inset-[-30%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
-                style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
-              ></div>
-              <span className="text-xs font-sans tracking-[0.4em] uppercase text-gray-500 block mb-6">Phase 02</span>
-              <h3 className="text-5xl md:text-7xl font-serif font-light text-black mb-8">The Translation</h3>
-              <p className="text-xl text-gray-800 font-light leading-relaxed">
-                Sourcing materials that mirror the psyche. Heavy wools for protection. Sheer silks for exposure. Torn weaves for the scars. The fabric itself is chosen as an actor to play the emotion.
-              </p>
-            </div>
-            <div className="w-full md:w-1/2 h-[45vh] lg:h-[60vh] overflow-hidden z-10 shadow-[-20px_20px_0px_#111]">
-               <img src="/images/Trauma/SnapInsta.to_552897189_17968571219956293_5767781704309943743_n.jpg" className="process-img w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 2" />
-            </div>
-          </div>
-        </div>
+        {/* Horizontal scroll — pinned section with 3D reel */}
+        <div className="process-pin w-full overflow-hidden min-h-[90vh] flex items-center">
+          <div className="process-track flex gap-12 pl-[25vw] pr-[25vw] py-24 will-change-transform" style={{ perspective: '2000px' }}>
+            {[
+              { 
+                num: "01", 
+                title: "The Catharsis", 
+                desc: "Emotional mapping sessions to define the wearer's psychological foundation.",
+                src: "/images/Dolore/SnapInsta.to_557439036_17969503967956293_3160932913129019343_n.jpg",
+                tag: "PHASE: ANALYSIS",
+                workshop: "COGNITIVE_DEPT"
+              },
+              { 
+                num: "02", 
+                title: "The Translation", 
+                desc: "Sourcing textiles that act as biological metaphors for internal states.",
+                src: "/images/Trauma/SnapInsta.to_552897189_17968571219956293_5767781704309943743_n.jpg",
+                tag: "PHASE: MATERIAL",
+                workshop: "TEXTILE_LAB"
+              },
+              { 
+                num: "03", 
+                title: "The Embodiment", 
+                desc: "Hand-tailoring using artisanal techniques to lock emotion into form.",
+                src: "/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg",
+                tag: "PHASE: CRAFT",
+                workshop: "ATELIER_01"
+              },
+              { 
+                num: "04", 
+                title: "The Revelation", 
+                desc: "The final alignment. The garment becomes a second skin, a wearable truth.",
+                src: "/images/Trauma/SnapInsta.to_552278453_17968412891956293_6352945722288339893_n.jpg",
+                tag: "PHASE: REVEAL",
+                workshop: "SHOWROOM"
+              }
+            ].map((phase, i) => (
+              <div key={i} className="process-card relative w-[75vw] md:w-[40vw] lg:w-[32vw] h-[65vh] shrink-0 group">
+                
+                {/* Hanger Hook Visual */}
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-8 h-12 flex flex-col items-center opacity-40 group-hover:opacity-80 transition-opacity">
+                  <div className="w-1.5 h-6 bg-black rounded-full mb-1"></div>
+                  <div className="w-full h-1 bg-black/20 rounded-full"></div>
+                </div>
 
-        {/* Layer 3: Crafting */}
-        <div className="process-panel h-screen w-full relative flex items-center justify-center bg-transparent py-12">
-          <div className="max-w-6xl w-full mx-6 flex flex-col md:flex-row gap-12 lg:gap-24 items-center relative py-10 lg:py-16">
-            <h2 className="process-num text-[14rem] lg:text-[22rem] font-serif font-bold text-black/[0.04] absolute -top-16 lg:-top-32 -left-10 lg:-left-16 pointer-events-none select-none">03</h2>
-            <div className="process-text relative w-full md:w-1/2 z-10 text-black p-8 md:p-12">
-              <div 
-                className="absolute inset-[-30%] backdrop-blur-[24px] bg-white/50 -z-10 pointer-events-none"
-                style={{ WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)', maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 50%)' }}
-              ></div>
-              <span className="text-xs font-sans tracking-[0.4em] uppercase text-gray-500 block mb-6">Phase 03</span>
-              <h3 className="text-5xl md:text-7xl font-serif font-light text-black mb-8">The Embodiment</h3>
-              <p className="text-xl text-gray-800 font-light leading-relaxed">
-                The atelier becomes a sanctuary. Precision tailoring merges with chaotic expression. Tomas and his artisans craft the piece entirely by hand, immortalizing the emotion perfectly tailored to the client's soul.
-              </p>
-              <div className="pt-8">
-               <button className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-black hover:text-gray-500 transition-colors w-fit border-b border-black/30 pb-3 group font-bold">
-                 Explore The Atelier <ChevronRight size={16} className="transform transition-transform group-hover:translate-x-2" />
-               </button>
+                <div className="w-full h-full bg-[#f9f9f9] shadow-[20px_40px_80px_rgba(0,0,0,0.15)] group-hover:shadow-[20px_40px_100px_rgba(0,0,0,0.25)] transition-shadow duration-700 overflow-hidden border border-black/10 flex flex-col">
+                  {/* Phase Number Background */}
+                  <h2 className="absolute top-0 left-0 text-[12rem] font-serif font-bold text-black/[0.03] leading-none pointer-events-none">{phase.num}</h2>
+                  
+                  {/* Technical Tag Overlay */}
+                  <div className="absolute top-6 right-6 z-20 mix-blend-difference pointer-events-none">
+                    <div className="flex flex-col text-[8px] md:text-[10px] font-mono tracking-tighter text-white/50 border-r border-white/30 pr-2 items-end">
+                      <span>{phase.tag}</span>
+                      <span>LAB: {phase.workshop}</span>
+                      <span>VER: 2026.04</span>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-hidden relative">
+                    <img src={phase.src} className="w-full h-full object-cover grayscale-[0.2] transition-all duration-1000 group-hover:scale-110 group-hover:grayscale-0" alt={phase.title} />
+                  </div>
+
+                  <div className="p-8 md:p-12 bg-white relative z-10 border-t border-black/5">
+                    <span className="text-[10px] font-sans tracking-[0.4em] uppercase text-gray-400 block mb-2">Phase {phase.num}</span>
+                    <h3 className="text-3xl md:text-4xl font-serif font-light text-black mb-4">{phase.title}</h3>
+                    <p className="text-sm md:text-base text-gray-600 font-light leading-relaxed">
+                      {phase.desc}
+                    </p>
+                  </div>
+                  
+                </div>
+
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[80%] h-4 bg-black/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
-            </div>
-            <div className="w-full md:w-1/2 h-[45vh] lg:h-[60vh] overflow-hidden z-10 shadow-[20px_20px_0px_#111]">
-               <img src="/images/Vergogna/SnapInsta.to_556832248_17969316989956293_8195147423866004946_n.jpg" className="process-img w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" alt="Phase 3" />
-            </div>
+            ))}
           </div>
         </div>
-
       </section>
 
       {/* 4.5 The Collection Section */}
